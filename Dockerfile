@@ -1,10 +1,11 @@
 FROM langflowai/langflow:latest
 
-# Cargar el bundle TrueEyeBeta.json desde GitHub
-ENV LANGFLOW_BUNDLE_URLS='["https://raw.githubusercontent.com/DeepRatAI/TE_flowRailway/main/TrueEyeBeta.json"]'
+# Copiamos el flow descriptor en la imagen para no depender de red
+COPY TrueEyeBeta.json /app/TrueEyeBeta.json
+ENV LANGFLOW_BUNDLE_PATHS='["/app/TrueEyeBeta.json"]'
 
-# Exponer el puerto de Langflow
-EXPOSE 7860
+# Railway define $PORT; si no existe, por defecto 7860
+EXPOSE ${PORT:-7860}
 
-# Arrancar Langflow en modo producción
-CMD ["langflow", "run", "--host", "0.0.0.0", "--port", "7860"]
+# Arranque escuchando en $PORT
+CMD ["sh", "-c", "langflow run --host 0.0.0.0 --port ${PORT:-7860}"]
