@@ -1,19 +1,16 @@
-# Dockerfile (trueeye_flow) — Opción 1: carga el bundle directamente desde GitHub
-
+# Dockerfile
 FROM langflowai/langflow:latest
 
-# Indica dónde está tu flujo 
+# Bundle JSON de tu Flow
 ENV LANGFLOW_BUNDLE_URLS='["https://raw.githubusercontent.com/DeepRatAI/TE_flowRailway/main/TrueEyeBeta.json"]'
 
-# Opcional: deshabilita el login automático (aviso de deprecación en v1.6)
-ENV LANGFLOW_SKIP_AUTH_AUTO_LOGIN=true
+# Railway inyecta aquí el puerto en el que escuchar
+# (si no está definido, usamos 7860 por defecto)
+ENV PORT=${PORT:-7860}
 
-# Puerto que usará Railway
-EXPOSE 7860
+# Exponer el puerto indicado
+EXPOSE ${PORT}
 
-# Healthcheck para verificar que Langflow arranque correctamente
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD curl -fs http://localhost:7860/health || exit 1
+# Arrancar Langflow escuchando en $PORT
+ENTRYPOINT ["sh", "-c", "langflow run --host 0.0.0.0 --port $PORT"]
 
-# Arranca Langflow escuchando en todas las interfaces
-CMD ["langflow", "run", "--host", "0.0.0.0", "--port", "7860"]
